@@ -5,7 +5,6 @@ module com.github.ammardevz.winhealer {
     requires org.controlsfx.controls;
     requires org.kordamp.bootstrapfx.core;
 
-
     requires java.desktop;
 
     exports com.github.ammardevz.winhealer;

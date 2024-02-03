@@ -1,6 +1,8 @@
 package com.github.ammardevz.winhealer;
 
 import javafx.application.Platform;
+import javafx.concurrent.Service;
+import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -10,15 +12,13 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextArea;
+import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -74,6 +74,8 @@ public class AppController implements Initializable{
                 consoleLoggerStage.setScene(scene);
                 textArea = (TextArea) consoleLoggerStage.getScene().lookup("#txtArea");
                 progressBar = (ProgressBar) consoleLoggerStage.getScene().lookup("#bar");
+                javafx.scene.image.Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream("logo.png")));
+                consoleLoggerStage.getIcons().add(image);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
@@ -103,36 +105,63 @@ public class AppController implements Initializable{
     }
 
 
+
     public void startHealing() {
         checkParameters();
         isHealing = true;
-        for (CommandModule command : commands) {
-            try {
-                log("Initializing service " + command.getName(), LogLevel.INFO);
 
-                Process process = Runtime.getRuntime().exec(new String[]{"cmd.exe", "/c", command.getCmd()});
+        Service<Void> healingService = new Service<>() {
+            @Override
+            protected Task<Void> createTask() {
+                return new Task<>() {
+                    @Override
+                    protected Void call() throws Exception {
+                        for (CommandModule command : commands) {
+                            try {
+                                Platform.runLater(() -> log("Initializing service " + command.getName(), LogLevel.INFO));
 
-                // Read the output of the process
-                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if (!line.trim().isEmpty()) {  // Check if the line is not empty or only whitespace
-                        log(line, LogLevel.INFO);
+                                Process process = Runtime.getRuntime().exec(new String[]{"cmd.exe", "/c", command.getCmd()});
+
+                                // Handle user input by writing to the standard input stream
+                                try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(process.getOutputStream()))) {
+                                    writer.write("y\n");
+                                    writer.flush();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+
+                                // Read the output of the process
+                                BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
+                                String line;
+                                while ((line = reader.readLine()) != null) {
+                                    if (!line.trim().isEmpty()) {
+                                        String finalLine = line;
+                                        Platform.runLater(() -> log(finalLine, LogLevel.INFO));
+                                    }
+                                }
+
+                                process.waitFor();
+                                Platform.runLater(() -> log("----------------------------", LogLevel.INFO));
+                            } catch (IOException | InterruptedException e) {
+                                Platform.runLater(() -> log("Service " + command.getName() + " failed", LogLevel.WARN));
+                            }
+                        }
+
+                        Platform.runLater(() -> {
+                            log("WinHealer finished task successfully", LogLevel.INFO);
+                            progressBar.setProgress(1);
+                            Toolkit.getDefaultToolkit().beep();
+                            isHealing = false;
+                        });
+
+                        return null;
                     }
-                }
-
-                process.waitFor();
-                log("----------------------------", LogLevel.INFO);
-            } catch (IOException | InterruptedException e) {
-                log("Service " + command.getName() + " failed", LogLevel.WARN);
+                };
             }
-        }
-        log("WinHealer finished task successfully", LogLevel.INFO);
-        progressBar.setProgress(1);
-        isHealing = false;
+        };
+
+        healingService.start();
     }
-
-
     public void supportLink(){
         openLink("https://www.buymeacoffee.com/ammardev");
     }
