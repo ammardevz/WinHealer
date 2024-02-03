@@ -159,8 +159,3 @@ public class AppController implements Initializable{
 
 }
 
-enum LogLevel {
-    INFO,
-    WARN,
-    ERROR
-}
