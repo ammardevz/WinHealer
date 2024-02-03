@@ -1,4 +1,4 @@
-# WinHealer README
+# WinHealer
 
 **Description:**
 WinHealer is a sophisticated Windows utility designed for seamless PC maintenance, featuring an intuitive GUI. Harnessing the power of built-in tools, it effortlessly optimizes system performance.
