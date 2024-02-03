@@ -1,0 +1,49 @@
+/* styles.css */
+
+
+.button {
+    -fx-background-color: #1F2D43;
+}
+
+
+.button:hover {
+    -fx-background-color: #283A57; /* Darker green on hover */
+}
+
+
+
+.check-box .box {
+
+-fx-background-color: #1F2D43;
+
+}
+
+.check-box:selected .mark {
+
+-fx-background-color: white;
+
+}
+
+.check-box:selected .box {
+
+-fx-background-color: #28a3f4;
+}
+
+.progress-bar .bar {
+    -fx-background-color: #00bfff;
+}
+
+.progress-bar .track {
+    -fx-background-color: #1F2D43;
+}
+
+.text-area {
+    -fx-background-color:  #131924;
+    -fx-control-inner-background: transparent;
+    -fx-text-fill: white;
+}
+
+.text-area .content {
+    -fx-background-color:  #131924;
+    -fx-background-radius: 0px;
+}
