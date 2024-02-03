@@ -26,7 +26,7 @@ WinHealer is a sophisticated Windows utility designed for seamless PC maintenanc
 - Explore the official site: [GitHub - Ammar DEV](https://github.com/ammardevz)
 
 **Note:**
-WinHealer is meticulously crafted by AMMAR DEV. All rights reserved.
+WinHealer is meticulously developed by AMMAR DEV. All rights reserved.
 
 **Disclaimer:**
 Utilize WinHealer responsibly, understanding the implications of selected optimizations. The developer is not liable for unintended consequences.
